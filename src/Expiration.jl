@@ -53,20 +53,20 @@ function expiration(model::T, underlying::Array{Float64,1})::DataFrame where {T<
 
     # initialize -
     expiration_data_table = DataFrame(
-        underlying = Float64[],
+        S = Float64[],
         payoff = Float64[],
         profit = Float64[]
     )
 
     # main loop -
-    for (i, S) ∈ enumerate(underlying)
+    for (i, underlying_value) ∈ enumerate(underlying)
 
         # compute the payoff -
-        (payoff_value, profit_value) = _expiration(model, S)
+        (payoff_value, profit_value) = _expiration(model, underlying_value)
 
         # compute the payoff -
         data_tuple = (
-            underlying = S,
+            S = underlying_value,
             payoff = payoff_value,
             profit = profit_value
         )
@@ -80,6 +80,43 @@ function expiration(model::T, underlying::Array{Float64,1})::DataFrame where {T<
 end
 
 function expiration(models::Array{T,1}, underlying::Array{Float64,1})::DataFrame where {T<:AbstractAssetModel}
-    return DataFrame()
+    
+    # initialize -
+    expiration_data_table = DataFrame(
+        S = Float64[],
+        payoff = Float64[],
+        profit = Float64[]
+    )
+
+    # main loop -
+    for underlying_value ∈ underlying
+        
+        # init -
+        tmp_payoff_value = 0.0
+        tmp_profit_value = 0.0
+
+        for model ∈ models
+            
+            # compute the payoff and profit for each leg of the trade -
+            (payoff_value, profit_value) = _expiration(model, underlying_value)
+
+            # accumulate -
+            tmp_payoff_value += payoff_value
+            tmp_profit_value += profit_value
+        end
+
+        # compute the payoff -
+        data_tuple = (
+            S = underlying_value,
+            payoff = tmp_payoff_value,
+            profit = tmp_profit_value
+        )
+
+        # push -
+        push!(expiration_data_table, data_tuple)
+    end
+
+    # return -
+    return expiration_data_table
 end
 # == PUBLIC METHODS ABIVE HERE ================================================================================================== #
