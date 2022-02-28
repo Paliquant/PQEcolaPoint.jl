@@ -12,6 +12,7 @@ mutable struct PutContractModel <: AbstractDerivativeContractModel
     premium::Float64
     current_price::Float64
     direction::Int64
+    number_of_contracts::Int64
 
     # constructor -
     PutContractModel() = new()
@@ -26,6 +27,7 @@ mutable struct CallContractModel <: AbstractDerivativeContractModel
     premium::Float64
     current_price::Float64
     direction::Int64
+    number_of_contracts::Int64
 
     # constructor -
     CallContractModel() = new()
@@ -38,6 +40,7 @@ mutable struct EquityModel <: AbstractAssetModel
     purchase_price::Float64
     current_price::Float64
     direction::Int64
+    number_of_shares::Int64
 
     # constructor -
     EquityModel() = new()
