@@ -82,41 +82,63 @@ end
 function expiration(models::Array{T,1}, underlying::Array{Float64,1})::DataFrame where {T<:AbstractAssetModel}
     
     # initialize -
-    expiration_data_table = DataFrame(
-        S = Float64[],
-        payoff = Float64[],
-        profit = Float64[]
-    )
+    expiration_data_dictionary = Dict{String,Any}()
 
-    # main loop -
+    # we know the underlying already -
+    expiration_data_dictionary["S"] = underlying
+
+    # process each leg -
+    for (i,model) ∈ enumerate(models)
+        
+        # create a new tmp array for each component -
+        tmp_leg_payoff_array = Array{Float64,1}()
+        tmp_leg_profit_array = Array{Float64,1}()
+        
+        for underlying_value ∈ underlying
+
+            # compute the payoff and profit for each leg of the trade -
+            (payoff_value, profit_value) = _expiration(model, underlying_value)
+
+            # capture -
+            push!(tmp_leg_payoff_array, payoff_value)
+            push!(tmp_leg_profit_array, profit_value)
+        end
+
+        # build key names -
+        payoff_key_name = "PAYOUT_L$(i)"
+        profit_key_name = "PROFIT_L$(i)"
+
+        # capture -
+        expiration_data_dictionary[payoff_key_name] = tmp_leg_payoff_array
+        expiration_data_dictionary[profit_key_name] = tmp_leg_profit_array
+    end
+
+    # create total profit and payoff data cols -
+    tmp_profit_array = Array{Float64,1}()
+    tmp_payoff_array = Array{Float64,1}()
     for underlying_value ∈ underlying
         
-        # init -
-        tmp_payoff_value = 0.0
         tmp_profit_value = 0.0
+        tmp_payoff_value = 0.0
 
         for model ∈ models
             
             # compute the payoff and profit for each leg of the trade -
             (payoff_value, profit_value) = _expiration(model, underlying_value)
 
-            # accumulate -
-            tmp_payoff_value += payoff_value
             tmp_profit_value += profit_value
+            tmp_payoff_value += payoff_value
         end
 
-        # compute the payoff -
-        data_tuple = (
-            S = underlying_value,
-            payoff = tmp_payoff_value,
-            profit = tmp_profit_value
-        )
-
-        # push -
-        push!(expiration_data_table, data_tuple)
+        push!(tmp_profit_array, tmp_profit_value)
+        push!(tmp_payoff_array, tmp_payoff_value)
     end
 
+    # add -
+    expiration_data_dictionary["TOTAL_PAYOUT"] = tmp_payoff_array
+    expiration_data_dictionary["TOTAL_PROFIT"] = tmp_profit_array
+
     # return -
-    return expiration_data_table
+    return DataFrame(expiration_data_dictionary)
 end
 # == PUBLIC METHODS ABIVE HERE ================================================================================================== #
