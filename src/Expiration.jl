@@ -42,10 +42,9 @@ function _expiration(equity::EquityModel, underlying::Float64)::Tuple{Float64,Fl
     direction = equity.direction
     purchase_price = equity.purchase_price
     number_of_shares = equity.number_of_shares
-    current_price = equity.current_price
 
     # Equity -
-    payoff_value = number_of_shares*current_price
+    payoff_value = number_of_shares*underlying
     profit_value = direction*(payoff_value - number_of_shares*purchase_price)
 
     # return -
