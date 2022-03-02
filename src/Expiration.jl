@@ -5,12 +5,14 @@ function _expiration(contract::PutContractModel, underlying::Float64)::Tuple{Flo
     direction = contract.direction
     K = contract.strike_price
     premium = contract.premium
+    number_of_contracts = contract.number_of_contracts
+
     payoff_value = 0.0
     profit_value = 0.0
 
     # PUT contract -
-    payoff_value = direction * max((K - underlying), 0.0)
-    profit_value = payoff_value - direction * premium
+    payoff_value = number_of_contracts*direction * max((K - underlying), 0.0)
+    profit_value = (payoff_value - direction * premium * number_of_contracts)
 
     # return -
     return (payoff_value, profit_value)
@@ -24,10 +26,11 @@ function _expiration(contract::CallContractModel, underlying::Float64)::Tuple{Fl
     premium = contract.premium
     payoff_value = 0.0
     profit_value = 0.0
+    number_of_contracts = contract.number_of_contracts
 
     # PUT contract -
-    payoff_value = direction * max((underlying - K), 0.0)
-    profit_value = payoff_value - direction * premium
+    payoff_value = number_of_contracts * direction * max((underlying - K), 0.0)
+    profit_value = (payoff_value - direction * premium * number_of_contracts)
 
     # return -
     return (payoff_value, profit_value)
@@ -36,12 +39,13 @@ end
 function _expiration(equity::EquityModel, underlying::Float64)::Tuple{Float64,Float64}
 
     # get data from Equity model -
-    direction = contract.direction
-    purchase_price = contract.purchase_price
+    direction = equity.direction
+    purchase_price = equity.purchase_price
+    number_of_shares = equity.number_of_shares
 
     # Equity -
-    payoff_value = (underlying - purchase_price)
-    profit_value = payoff_value
+    payoff_value = number_of_shares*underlying
+    profit_value = direction*(payoff_value - number_of_shares*purchase_price)
 
     # return -
     return (payoff_value, profit_value)
