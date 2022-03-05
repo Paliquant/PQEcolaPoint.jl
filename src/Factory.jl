@@ -26,7 +26,7 @@ function build(contractType::Type{T}, options::Dict{String,Any})::AbstractAssetM
     return model
 end
 
-function build(LatticeModel; number_of_levels::Int64 = 2, branch_factor::Int64 = 2)::LatticeModel
+function build(LatticeModel; number_of_levels::Int64 = 2, branch_factor::Int64 = 2)::Union{ArgumentError,LatticeModel}
 
     # create a blanck LatticeModel -
     lattice_model = LatticeModel()
@@ -34,10 +34,14 @@ function build(LatticeModel; number_of_levels::Int64 = 2, branch_factor::Int64 =
     lattice_model.branch_factor = branch_factor
 
     # check: number_of_levels ≥ 2
-    # ...
+    if (number_of_levels < 2)
+        return ArgumentError("Check failure: number_of_levels must be ≥ 2")
+    end
 
     # check: branch_factor ≥ 1
-    # ...
+    if (branch_factor < 1)
+        return ArgumentError("Check failure: branch_factor must be ≥ 1")
+    end
 
     # setup connectivity array -
     h = (number_of_levels - 2)
