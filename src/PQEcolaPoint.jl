@@ -9,6 +9,7 @@ export AbstractDerivativeContractModel
 export PutContractModel
 export CallContractModel
 export EquityModel
+export LatticeModel
 
 # export methods -
 export expiration

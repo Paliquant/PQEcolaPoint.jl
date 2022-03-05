@@ -45,3 +45,15 @@ mutable struct EquityModel <: AbstractAssetModel
     # constructor -
     EquityModel() = new()
 end
+
+mutable struct LatticeModel
+
+    # data -
+    number_of_levels::Int64
+    branch_factor::Int64
+    connectivity::Array{Int64,2}
+    data::Dict{Int64,Any}
+
+    # constructor -
+    LatticeModel() = new()
+end
