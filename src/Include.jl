@@ -5,6 +5,8 @@ _PATH_TO_SRC = dirname(pathof(@__MODULE__))
 using CSV
 using DataFrames
 using Dates
+using Distributions
+using Plots
 
 # load my codes 
 include(joinpath(_PATH_TO_SRC, "Types.jl"))
