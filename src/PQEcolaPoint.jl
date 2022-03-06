@@ -6,10 +6,11 @@ include("Include.jl")
 # export types -
 export AbstractAssetModel
 export AbstractDerivativeContractModel
+export AbstractLatticeModel
 export PutContractModel
 export CallContractModel
 export EquityModel
-export LatticeModel
+export CRRLatticeModel
 
 # export methods -
 export expiration

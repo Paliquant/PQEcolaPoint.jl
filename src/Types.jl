@@ -1,4 +1,5 @@
 # abstract types -
+abstract type AbstractLatticeModel end
 abstract type AbstractAssetModel end
 abstract type AbstractDerivativeContractModel <: AbstractAssetModel end
 
@@ -46,14 +47,15 @@ mutable struct EquityModel <: AbstractAssetModel
     EquityModel() = new()
 end
 
-mutable struct LatticeModel
+mutable struct CRRLatticeModel <: AbstractLatticeModel
 
     # data -
     number_of_levels::Int64
     branch_factor::Int64
     connectivity::Array{Int64,2}
+    probability::Float64
     data::Dict{Int64,Any}
 
     # constructor -
-    LatticeModel() = new()
+    CRRLatticeModel() = new()
 end
