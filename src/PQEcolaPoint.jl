@@ -15,5 +15,6 @@ export CRRLatticeModel
 # export methods -
 export expiration
 export build
+export price
 
 end # module
