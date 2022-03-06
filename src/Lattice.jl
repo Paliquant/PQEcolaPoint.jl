@@ -6,7 +6,7 @@ function price(model::T, level::Int64)::Array{Float64,1} where {T<:AbstractLatti
 
     # get the connectivity array -
     dd = model.data
-    h = (number_of_levels - 2)
+    h = (level - 1)
     k = branch_factor
     L = k^h
     number_of_rows = convert(Int, (k * L - 1) / (k - 1))
@@ -16,7 +16,11 @@ function price(model::T, level::Int64)::Array{Float64,1} where {T<:AbstractLatti
 
     # fill in connectivity -
     price_array = Array{Float64,1}()
-
+    index_vector_reverse = reverse(range(1, stop = number_of_rows, step = 1) |> collect)
+    index_vector_at_level = reverse(index_vector_reverse[1:L])
+    for i ∈ index_vector_at_level
+        push!(price_array, dd[i])
+    end
 
     return price_array
 end
