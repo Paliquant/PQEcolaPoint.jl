@@ -1,7 +1,6 @@
-function price(model::T, level::Int64)::Array{Float64,1} where {T<:AbstractLatticeModel}
+function price(selector::Function, model::T, level::Int64)::Array{Float64,1} where {T<:AbstractLatticeModel}
 
     # get network parameters -
-    number_of_levels = model.number_of_levels
     branch_factor = model.branch_factor
 
     # get the connectivity array -
@@ -19,8 +18,17 @@ function price(model::T, level::Int64)::Array{Float64,1} where {T<:AbstractLatti
     index_vector_reverse = reverse(range(1, stop = number_of_rows, step = 1) |> collect)
     index_vector_at_level = reverse(index_vector_reverse[1:L])
     for i ∈ index_vector_at_level
-        push!(price_array, dd[i])
+
+        # grab the price value -
+        price_value = selector(dd,i)
+
+        # cache -
+        push!(price_array, price_value)
     end
 
     return price_array
+end
+
+function premium(contract::Y, model::T)::Float64
+    return 0.0
 end

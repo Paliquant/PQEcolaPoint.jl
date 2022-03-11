@@ -16,5 +16,6 @@ export CRRLatticeModel
 export expiration
 export build
 export price
+export premium
 
 end # module
