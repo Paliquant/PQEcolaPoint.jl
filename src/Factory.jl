@@ -29,16 +29,6 @@ end
 function build(CRRLatticeModel; number_of_levels::Int64 = 2, branch_factor::Int64 = 2,
     T::Float64 = (1 / 365), σ::Float64 = 10.0, Sₒ::Float64 = 1.0, r::Float64 = 0.015)::Union{ArgumentError,CRRLatticeModel}
 
-    # compute the time step -
-    ΔT = T / number_of_levels
-
-    # create a blanck LatticeModel -
-    lattice_model = CRRLatticeModel()
-    lattice_model.number_of_levels = number_of_levels
-    lattice_model.branch_factor = branch_factor
-    lattice_model.risk_free_rate = r
-    lattice_model.ΔT = ΔT
-
     # check: number_of_levels ≥ 2
     if (number_of_levels < 2)
         return ArgumentError("Check failure: number_of_levels must be ≥ 2")
@@ -49,10 +39,25 @@ function build(CRRLatticeModel; number_of_levels::Int64 = 2, branch_factor::Int6
         return ArgumentError("Check failure: branch_factor must be ≥ 2")
     end
 
-    # setup connectivity array -
+    # compute the time step -
+    ΔT = T / number_of_levels
     h = (number_of_levels - 2)
     k = branch_factor
     L = k^h
+    u = exp(σ * sqrt((k - 1) * ΔT))
+    d = exp(-σ * sqrt((k - 1) * ΔT))
+    p = (exp(r * ΔT) - d) / (u - d)
+
+    # create a blanck LatticeModel -
+    lattice_model = CRRLatticeModel()
+    lattice_model.number_of_levels = number_of_levels
+    lattice_model.branch_factor = branch_factor
+    lattice_model.risk_free_rate = r
+    lattice_model.ΔT = ΔT
+    lattice_model.u = u
+    lattice_model.d = d
+
+    # setup connectivity array -
     number_of_rows = convert(Int, (k * L - 1) / (k - 1))
     connectivity_array = Array{Int64,2}(undef, number_of_rows, k)
 
@@ -68,9 +73,6 @@ function build(CRRLatticeModel; number_of_levels::Int64 = 2, branch_factor::Int6
     lattice_model.connectivity = connectivity_array
 
     # Finally, let's compute the price for the nodes in the network -
-    u = exp(σ * sqrt((k - 1) * ΔT))
-    d = exp(-σ * sqrt((k - 1) * ΔT))
-    p = (exp(r * ΔT) - d) / (u - d)
     δ = reverse(range(start = d, stop = u, length = k) |> collect)
     data_dictionary = Dict{Int64,Any}()
     for i ∈ 1:number_of_rows

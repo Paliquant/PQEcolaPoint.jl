@@ -39,7 +39,7 @@ function premium(contract::T, model::CRRLatticeModel) where {T<:AbstractDerivati
     ΔT = model.ΔT
 
     # what is the size of the system?
-    (NR, NC) = size(connectivity)
+    (NR, _) = size(connectivity)
 
     # initialize -
     discounted_payoff_dict = Dict{Int64,Float64}()
