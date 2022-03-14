@@ -54,6 +54,8 @@ mutable struct CRRLatticeModel <: AbstractLatticeModel
     branch_factor::Int64
     connectivity::Array{Int64,2}
     probability::Float64
+    risk_free_rate::Float64
+    ΔT::Float64
     data::Dict{Int64,Any}
 
     # constructor -

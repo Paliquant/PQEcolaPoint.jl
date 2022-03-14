@@ -11,7 +11,7 @@ function _expiration(contract::PutContractModel, underlying::Float64)::Tuple{Flo
     profit_value = 0.0
 
     # PUT contract -
-    payoff_value = number_of_contracts*direction * max((K - underlying), 0.0)
+    payoff_value = number_of_contracts * direction * max((K - underlying), 0.0)
     profit_value = (payoff_value - direction * premium * number_of_contracts)
 
     # return -
@@ -44,8 +44,8 @@ function _expiration(equity::EquityModel, underlying::Float64)::Tuple{Float64,Fl
     number_of_shares = equity.number_of_shares
 
     # Equity -
-    payoff_value = number_of_shares*underlying
-    profit_value = direction*(payoff_value - number_of_shares*purchase_price)
+    payoff_value = number_of_shares * underlying
+    profit_value = direction * (payoff_value - number_of_shares * purchase_price)
 
     # return -
     return (payoff_value, profit_value)
@@ -84,7 +84,7 @@ function expiration(model::T, underlying::Array{Float64,1})::DataFrame where {T<
 end
 
 function expiration(models::Array{T,1}, underlying::Array{Float64,1})::DataFrame where {T<:AbstractAssetModel}
-    
+
     # initialize -
     expiration_data_dictionary = Dict{String,Any}()
 
@@ -92,12 +92,12 @@ function expiration(models::Array{T,1}, underlying::Array{Float64,1})::DataFrame
     expiration_data_dictionary["S"] = underlying
 
     # process each leg -
-    for (i,model) ∈ enumerate(models)
-        
+    for (i, model) ∈ enumerate(models)
+
         # create a new tmp array for each component -
         tmp_leg_payoff_array = Array{Float64,1}()
         tmp_leg_profit_array = Array{Float64,1}()
-        
+
         for underlying_value ∈ underlying
 
             # compute the payoff and profit for each leg of the trade -
@@ -121,12 +121,12 @@ function expiration(models::Array{T,1}, underlying::Array{Float64,1})::DataFrame
     tmp_profit_array = Array{Float64,1}()
     tmp_payoff_array = Array{Float64,1}()
     for underlying_value ∈ underlying
-        
+
         tmp_profit_value = 0.0
         tmp_payoff_value = 0.0
 
         for model ∈ models
-            
+
             # compute the payoff and profit for each leg of the trade -
             (payoff_value, profit_value) = _expiration(model, underlying_value)
 
@@ -144,5 +144,12 @@ function expiration(models::Array{T,1}, underlying::Array{Float64,1})::DataFrame
 
     # return -
     return DataFrame(expiration_data_dictionary)
+end
+
+function intrinsic(model::T, underlying::Float64)::Float64 where {T<:AbstractAssetModel}
+
+    # compute the payoff -
+    (payoff_value, _) = _expiration(model, underlying)
+    return payoff_value
 end
 # == PUBLIC METHODS ABIVE HERE ================================================================================================== #

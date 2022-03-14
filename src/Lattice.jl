@@ -20,7 +20,7 @@ function price(selector::Function, model::T, level::Int64)::Array{Float64,1} whe
     for i ∈ index_vector_at_level
 
         # grab the price value -
-        price_value = selector(dd,i)
+        price_value = selector(dd, i)
 
         # cache -
         push!(price_array, price_value)
@@ -29,6 +29,46 @@ function price(selector::Function, model::T, level::Int64)::Array{Float64,1} whe
     return price_array
 end
 
-function premium(contract::Y, model::T)::Float64
-    return 0.0
+function premium(contract::T, model::CRRLatticeModel) where {T<:AbstractDerivativeContractModel}
+
+    # get parameters from the LatticeModel -
+    connectivity = model.connectivity
+    data = model.data
+    p = model.probability
+    r = model.risk_free_rate
+    ΔT = model.ΔT
+
+    # what is the size of the system?
+    (NR, NC) = size(connectivity)
+
+    # initialize -
+    discounted_payoff_dict = Dict{Int64,Float64}()
+
+    # compute discount factor -
+    d = exp(-r * ΔT)
+
+    # get size of the connectivity array -
+    for i ∈ NR:-1:1
+
+        # get underlyng price of children nodes -
+        Sₒ = data[i]
+        S₁ = data[connectivity[i, 1]]
+        S₂ = data[connectivity[i, 2]]
+
+        # compute the payoff for each of my children nodes -
+        payoff_value_0 = intrinsic(contract, Sₒ)
+        payoff_value_1 = intrinsic(contract, S₁)
+        payoff_value_2 = intrinsic(contract, S₂)
+
+        # compute the discounted expected payoff -
+        dep = d * (p * payoff_value_1 + (1 - p) * payoff_value_2)
+
+        # what is the value of this node?
+        node_value = max(payoff_value_0, dep)
+
+        # grab this payoff value -
+        discounted_payoff_dict[i] = node_value
+    end
+
+    return discounted_payoff_dict
 end

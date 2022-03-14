@@ -17,5 +17,6 @@ export expiration
 export build
 export price
 export premium
+export intrinsic
 
 end # module
