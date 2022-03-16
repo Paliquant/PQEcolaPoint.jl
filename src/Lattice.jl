@@ -30,10 +30,11 @@ function price(selector::Function, model::T, level::Int64)::Array{Float64,1} whe
 end
 
 
-function price(model::CRRLatticeModel, level::Int64)::Array{Float64,1}
+function price(model::CRRLatticeModel, level::Int64)
 
     # grab the data -
     data_array = model.data
+    prices = Array{Float64,1}()
 
     # compute connectivity - 
     number_items_per_level = [i for i = 1:level]
@@ -46,6 +47,14 @@ function price(model::CRRLatticeModel, level::Int64)::Array{Float64,1}
         theta = theta + 1
     end
 
+    idx = findall(x->x==last(tmp_array), number_items_per_level[level])
+    for i ∈ idx
+        value = data_array[i,1]
+        push!(prices, value)
+    end    
+
+    # return -
+    return prices
 end
 
 function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1})::DataFrame where {T<:AbstractDerivativeContractModel}
