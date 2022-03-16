@@ -26,90 +26,79 @@ function build(contractType::Type{T}, options::Dict{String,Any})::AbstractAssetM
     return model
 end
 
-function build(CRRLatticeModel; number_of_levels::Int64 = 2, branch_factor::Int64 = 2,
-    T::Float64 = (1 / 365), σ::Float64 = 10.0, Sₒ::Float64 = 1.0, r::Float64 = 0.015)::Union{ArgumentError,CRRLatticeModel}
+function build(CRRLatticeModel; number_of_levels::Int64 = 2, T::Float64 = (1 / 365), σ::Float64 = 10.0, Sₒ::Float64 = 1.0, μ::Float64 = 0.015)::Union{ArgumentError,CRRLatticeModel}
 
     # check: number_of_levels ≥ 2
     if (number_of_levels < 2)
         return ArgumentError("Check failure: number_of_levels must be ≥ 2")
     end
 
-    # check: branch_factor ≥ 2
-    if (branch_factor < 2)
-        return ArgumentError("Check failure: branch_factor must be ≥ 2")
+    # initialize -
+    lattice_model = CRRLatticeModel()
+
+    # compute the movement up, down and probability -
+    ΔT = T / number_of_levels
+    u = exp(σ * √ΔT)
+    d = exp(-σ * √ΔT)
+    p = (exp(µ * ΔT) - d) / (u - d)
+    discount = exp(-µ * ΔT)
+
+    # compute connectivity - 
+    number_items_per_level = [i for i = 1:number_of_levels]
+    tmp_array = Array{Int64,1}()
+    theta = 0
+    for value in number_items_per_level
+        for index = 1:value
+            push!(tmp_array, theta)
+        end
+        theta = theta + 1
     end
 
-    # compute the time step -
-    ΔT = T / number_of_levels
-    h = (number_of_levels - 2)
-    k = branch_factor
-    L = k^h
-    u = exp(σ * sqrt((k - 1) * ΔT))
-    d = exp(-σ * sqrt((k - 1) * ΔT))
-    p = (exp(r * ΔT) - d) / (u - d)
+    N = sum(number_items_per_level[1:(number_of_levels-1)])
+    connectivity_index_array = Array{Int64,2}(undef, N, 3)
+    for row_index = 1:N
 
-    # create a blanck LatticeModel -
-    lattice_model = CRRLatticeModel()
-    lattice_model.number_of_levels = number_of_levels
-    lattice_model.branch_factor = branch_factor
-    lattice_model.risk_free_rate = r
-    lattice_model.ΔT = ΔT
+        # index_array[row_index,1] = tmp_array[row_index]
+        connectivity_index_array[row_index, 1] = row_index
+        connectivity_index_array[row_index, 2] = row_index + 1 + tmp_array[row_index]
+        connectivity_index_array[row_index, 3] = row_index + 2 + tmp_array[row_index]
+    end
+    lattice_model.connectivity = connectivity_index_array
+
+    # init the tree -
+    total_number_of_lattice_nodes = connectivity_index_array[end, end]
+    number_of_nodes_to_evaluate = connectivity_index_array[end, 1]
+    tree_value_array = Array{Float64,2}(undef, total_number_of_lattice_nodes, 3) # nodes x 3 = col1: underlying price, col2: intrinsic value, col3: option price
+
+    # First: let's compute the underlying price on the lattice -
+    tree_value_array[1, 1] = Sₒ
+    for node_index ∈ 1:number_of_nodes_to_evaluate
+
+        # get index -
+        parent_node_index = connectivity_index_array[node_index, 1]
+        up_node_index = connectivity_index_array[node_index, 2]
+        down_node_index = connectivity_index_array[node_index, 3]
+
+        # compute prices -
+        parent_price = tree_value_array[parent_node_index, 1]
+        up_price = parent_price * u
+        down_price = parent_price * d
+
+        # store prices -
+        tree_value_array[up_node_index, 1] = up_price
+        tree_value_array[down_node_index, 1] = down_price
+    end
+
+    # Second: let's add the data to the lattice model -
+    lattice_model.data = tree_value_array
+
+    # add other stuff -
+    lattice_model.p = p
+    lattice_model.μ = μ
     lattice_model.u = u
     lattice_model.d = d
+    lattice_model.ΔT = ΔT
 
-    # setup connectivity array -
-    number_of_rows = convert(Int, (k * L - 1) / (k - 1))
-    connectivity_array = Array{Int64,2}(undef, number_of_rows, k)
-
-    # what is my b?
-    b = range(start = -(k - 2), stop = 1, step = 1) |> collect
-
-    # fill in connectivity -
-    for i ∈ 1:number_of_rows
-        for j ∈ 1:k
-            connectivity_array[i, j] = k * i + b[j]
-        end
-    end
-    lattice_model.connectivity = connectivity_array
-
-    # Finally, let's compute the price for the nodes in the network -
-    δ = reverse(range(start = d, stop = u, length = k) |> collect)
-    data_dictionary = Dict{Int64,Any}()
-    for i ∈ 1:number_of_rows
-
-        # which node is this node connected to?
-        list_of_children_nodes = connectivity_array[i, :]
-
-        if (i == 1)
-
-            # set the initial price -
-            data_dictionary[i] = Sₒ
-
-            # price for the children -
-            S_child = Sₒ .* δ
-
-            # what nodes is i connected to -
-            list_of_children_nodes = connectivity_array[i, :]
-            for (j, child_index) ∈ enumerate(list_of_children_nodes)
-                data_dictionary[child_index] = S_child[j]
-            end
-        else
-
-            # get the parent price -
-            S_parent = data_dictionary[i]
-            S_child = S_parent .* δ
-
-            # what nodes is i connected to -
-            for (j, child_index) ∈ enumerate(list_of_children_nodes)
-                data_dictionary[child_index] = S_child[j]
-            end
-        end
-    end
-
-    # set data -
-    lattice_model.data = data_dictionary
-    lattice_model.probability = p
-
-    # return -
+    # return the model -
     return lattice_model
 end

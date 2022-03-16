@@ -31,44 +31,52 @@ end
 
 function premium(contract::T, model::CRRLatticeModel) where {T<:AbstractDerivativeContractModel}
 
-    # get parameters from the LatticeModel -
-    connectivity = model.connectivity
-    data = model.data
-    p = model.probability
-    r = model.risk_free_rate
-    ΔT = model.ΔT
-
-    # what is the size of the system?
-    (NR, _) = size(connectivity)
-
     # initialize -
-    discounted_payoff_dict = Dict{Int64,Float64}()
+    tree_value_array = model.data
+    connectivity_index_array = model.connectivity
 
-    # compute discount factor -
-    d = exp(-r * ΔT)
+    # add other stuff -
+    p = model.p
+    μ = model.μ
+    ΔT = model.ΔT
+    dfactor = exp(-μ * ΔT)
 
-    # get size of the connectivity array -
-    for i ∈ NR:-1:1
+    # size -
+    total_number_of_lattice_nodes = connectivity_index_array[end, end]
+    number_of_nodes_to_evaluate = connectivity_index_array[end, 1]
 
-        # get underlyng price of children nodes -
-        Sₒ = data[i]
-        S₁ = data[connectivity[i, 1]]
-        S₂ = data[connectivity[i, 2]]
+    # Next: compute the intrinsice value for each node -
+    for node_index = 1:total_number_of_lattice_nodes
 
-        # compute the payoff for each of my children nodes -
-        payoff_value_0 = intrinsic(contract, Sₒ)
-        payoff_value_1 = intrinsic(contract, S₁)
-        payoff_value_2 = intrinsic(contract, S₂)
+        # ok, get the underlying price -
+        underlying_price_value = tree_value_array[node_index, 1]
 
-        # compute the discounted expected payoff -
-        dep = d * (p * payoff_value_1 + (1 - p) * payoff_value_2)
+        # compute the intrinsic value -
+        iv_value = intrinsic(contract, underlying_price_value)
 
-        # what is the value of this node?
-        node_value = max(payoff_value_0, dep)
-
-        # grab this payoff value -
-        discounted_payoff_dict[i] = node_value
+        # capture - 
+        tree_value_array[node_index, 2] = iv_value
+        tree_value_array[node_index, 3] = iv_value
     end
 
-    return discounted_payoff_dict
+    # Last: compute the option price -
+    reverse_node_index_array = range(number_of_nodes_to_evaluate, stop = 1, step = -1) |> collect
+    for (_, parent_node_index) in enumerate(reverse_node_index_array)
+
+        # ok, get the connected node indexes -
+        up_node_index = connectivity_index_array[parent_node_index, 2]
+        down_node_index = connectivity_index_array[parent_node_index, 3]
+
+        # ok, let's compute the payback *if* we continue -
+        future_payback = dfactor * (p * tree_value_array[up_node_index, 3] + (1 - p) * tree_value_array[down_node_index, 3])
+        current_payback = tree_value_array[parent_node_index, 2]
+
+        # use the decision logic to compute price -
+        node_price = max(current_payback, future_payback)
+
+        # capture -
+        tree_value_array[parent_node_index, 3] = node_price
+    end
+
+    return tree_value_array
 end
