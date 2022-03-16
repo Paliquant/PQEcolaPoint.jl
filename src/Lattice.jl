@@ -47,14 +47,15 @@ function price(model::CRRLatticeModel, level::Int64)
         theta = theta + 1
     end
 
-    idx = findall(x->x==last(tmp_array), number_items_per_level[level])
-    for i ∈ idx
-        value = data_array[i,1]
-        push!(prices, value)
-    end    
+    # levels -
+    L = tmp_array .+ 1
+
+    # find the idx's for level -
+    idx = findall(x -> x == level, L)
+    price_array = data_array[idx, 1]
 
     # return -
-    return prices
+    return price_array
 end
 
 function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1})::DataFrame where {T<:AbstractDerivativeContractModel}
