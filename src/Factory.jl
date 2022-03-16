@@ -26,7 +26,7 @@ function build(contractType::Type{T}, options::Dict{String,Any})::AbstractAssetM
     return model
 end
 
-function build(CRRLatticeModel; number_of_levels::Int64 = 2, T::Float64 = (1 / 365), σ::Float64 = 10.0, Sₒ::Float64 = 1.0, μ::Float64 = 0.015)::Union{ArgumentError,CRRLatticeModel}
+function build(CRRLatticeModel; number_of_levels::Int64 = 2, T::Float64 = (1 / 365), σ::Float64 = 0.15, Sₒ::Float64 = 1.0, μ::Float64 = 0.0015)::Union{ArgumentError,CRRLatticeModel}
 
     # check: number_of_levels ≥ 2
     if (number_of_levels < 2)
@@ -98,6 +98,9 @@ function build(CRRLatticeModel; number_of_levels::Int64 = 2, T::Float64 = (1 / 3
     lattice_model.u = u
     lattice_model.d = d
     lattice_model.ΔT = ΔT
+    lattice_model.σ = σ
+    lattice_model.L = T
+    lattice_model.Sₒ = Sₒ
 
     # return the model -
     return lattice_model

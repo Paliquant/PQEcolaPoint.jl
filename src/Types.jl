@@ -54,11 +54,14 @@ mutable struct CRRLatticeModel <: AbstractLatticeModel
     branch_factor::Int64
     connectivity::Array{Int64,2}
 
+    σ::Float64
     p::Float64
     μ::Float64
     u::Float64
     d::Float64
     ΔT::Float64
+    L::Float64
+    Sₒ::Float64
 
     data::Array{Float64,2}
 

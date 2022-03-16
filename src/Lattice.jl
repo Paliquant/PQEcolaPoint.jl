@@ -29,9 +29,60 @@ function price(selector::Function, model::T, level::Int64)::Array{Float64,1} whe
     return price_array
 end
 
+function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1})::DataFrame where {T<:AbstractDerivativeContractModel}
 
+    # initialize -
+    df = DataFrame()
 
-function premium(contract::T, model::CRRLatticeModel) where {T<:AbstractDerivativeContractModel}
+    for model ∈ models
+
+        for contract ∈ contracts
+
+            # let's compute the premium -
+            premium_value = premium(contract, model)
+
+            # get some value from the model, and contract -
+            L = model.L
+            ΔT = model.ΔT
+            σ = model.σ
+            Sₒ = model.Sₒ
+            K = contract.strike_price
+
+            # build tuple to add to the data frame -
+            results_tuple = (
+                L = L,
+                ΔT = ΔT,
+                Sₒ = Sₒ,
+                K = K,
+                IV = σ,
+                P = premium_value
+            )
+
+            # push -
+            push!(df, results_tuple)
+        end
+    end
+
+    # return -
+    return df
+end
+
+function premium(contracts::Array{T,1}, model::CRRLatticeModel)::Array{Float64,1} where {T<:AbstractDerivativeContractModel}
+
+    # initialize -
+    premimums = Array{Float64,1}()
+    for contract ∈ contracts
+
+        # compute the premium -
+        value = premium(contract, model)
+        push!(premimums, value)
+    end
+
+    # return - 
+    return premimums
+end
+
+function premium(contract::T, model::CRRLatticeModel)::Float64 where {T<:AbstractDerivativeContractModel}
 
     # initialize -
     tree_value_array = model.data
