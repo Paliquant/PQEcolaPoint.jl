@@ -29,6 +29,8 @@ function price(selector::Function, model::T, level::Int64)::Array{Float64,1} whe
     return price_array
 end
 
+
+
 function premium(contract::T, model::CRRLatticeModel) where {T<:AbstractDerivativeContractModel}
 
     # initialize -
@@ -46,7 +48,7 @@ function premium(contract::T, model::CRRLatticeModel) where {T<:AbstractDerivati
     number_of_nodes_to_evaluate = connectivity_index_array[end, 1]
 
     # Next: compute the intrinsice value for each node -
-    for node_index = 1:total_number_of_lattice_nodes
+    for node_index ∈ 1:total_number_of_lattice_nodes
 
         # ok, get the underlying price -
         underlying_price_value = tree_value_array[node_index, 1]
@@ -61,7 +63,7 @@ function premium(contract::T, model::CRRLatticeModel) where {T<:AbstractDerivati
 
     # Last: compute the option price -
     reverse_node_index_array = range(number_of_nodes_to_evaluate, stop = 1, step = -1) |> collect
-    for (_, parent_node_index) in enumerate(reverse_node_index_array)
+    for (_, parent_node_index) ∈ enumerate(reverse_node_index_array)
 
         # ok, get the connected node indexes -
         up_node_index = connectivity_index_array[parent_node_index, 2]
@@ -78,5 +80,6 @@ function premium(contract::T, model::CRRLatticeModel) where {T<:AbstractDerivati
         tree_value_array[parent_node_index, 3] = node_price
     end
 
-    return tree_value_array
+    # return -
+    return tree_value_array[1, 3]
 end
