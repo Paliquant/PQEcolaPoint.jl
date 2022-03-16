@@ -41,14 +41,13 @@ function build(CRRLatticeModel; number_of_levels::Int64 = 2, T::Float64 = (1 / 3
     u = exp(σ * √ΔT)
     d = exp(-σ * √ΔT)
     p = (exp(µ * ΔT) - d) / (u - d)
-    discount = exp(-µ * ΔT)
 
     # compute connectivity - 
     number_items_per_level = [i for i = 1:number_of_levels]
     tmp_array = Array{Int64,1}()
     theta = 0
     for value in number_items_per_level
-        for index = 1:value
+        for _ = 1:value
             push!(tmp_array, theta)
         end
         theta = theta + 1

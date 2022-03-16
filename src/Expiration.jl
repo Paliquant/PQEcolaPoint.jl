@@ -146,6 +146,21 @@ function expiration(models::Array{T,1}, underlying::Array{Float64,1})::DataFrame
     return DataFrame(expiration_data_dictionary)
 end
 
+
+function intrinsic(model::T, underlying::Array{Float64,1})::Array{Float64,1} where {T<:AbstractAssetModel}
+
+    # initialize -
+    intrinsic_value_array = Array{Float64,1}()
+
+    for value ∈ underlying
+        (payoff_value, _) = _expiration(model, value)
+        push!(intrinsic_value_array, payoff_value)
+    end
+
+    # rerturn -
+    return intrinsic_value_array
+end
+
 function intrinsic(model::T, underlying::Float64)::Float64 where {T<:AbstractAssetModel}
 
     # compute the payoff -

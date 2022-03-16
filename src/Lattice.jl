@@ -29,6 +29,25 @@ function price(selector::Function, model::T, level::Int64)::Array{Float64,1} whe
     return price_array
 end
 
+
+function price(model::CRRLatticeModel, level::Int64)::Array{Float64,1}
+
+    # grab the data -
+    data_array = model.data
+
+    # compute connectivity - 
+    number_items_per_level = [i for i = 1:level]
+    tmp_array = Array{Int64,1}()
+    theta = 0
+    for value in number_items_per_level
+        for _ = 1:value
+            push!(tmp_array, theta)
+        end
+        theta = theta + 1
+    end
+
+end
+
 function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1})::DataFrame where {T<:AbstractDerivativeContractModel}
 
     # initialize -
