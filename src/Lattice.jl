@@ -11,11 +11,11 @@ function price(selector::Function, model::T, level::Int64)::Array{Float64,1} whe
     number_of_rows = convert(Int, (k * L - 1) / (k - 1))
 
     # what is my b?
-    b = range(start = -(k - 2), stop = 1, step = 1) |> collect
+    b = range(start=-(k - 2), stop=1, step=1) |> collect
 
     # fill in connectivity -
     price_array = Array{Float64,1}()
-    index_vector_reverse = reverse(range(1, stop = number_of_rows, step = 1) |> collect)
+    index_vector_reverse = reverse(range(1, stop=number_of_rows, step=1) |> collect)
     index_vector_at_level = reverse(index_vector_reverse[1:L])
     for i ∈ index_vector_at_level
 
@@ -34,7 +34,8 @@ function price(model::CRRLatticeModel, level::Int64)
 
     # grab the data -
     data_array = model.data
-    prices = Array{Float64,1}()
+    p = model.p
+    probabilities = Array{Float64,1}()
 
     # compute connectivity - 
     number_items_per_level = [i for i = 1:level]
@@ -54,8 +55,20 @@ function price(model::CRRLatticeModel, level::Int64)
     idx = findall(x -> x == level, L)
     price_array = data_array[idx, 1]
 
+    # size -
+    ℛ = length(price_array)
+
+    # compute the probabilty array -
+    tmp_range = range((level - 1), stop=0, step=-1) |> collect
+    for i ∈ tmp_range
+        j = (level - 1) - i
+        coeff = binomial((level - 1), j)
+        pvalue = coeff * ((p^i) * ((1 - p)^j))
+        push!(probabilities, pvalue)
+    end
+
     # return -
-    return price_array
+    return hcat(price_array, probabilities)
 end
 
 function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1})::DataFrame where {T<:AbstractDerivativeContractModel}
@@ -79,12 +92,12 @@ function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1})::DataF
 
             # build tuple to add to the data frame -
             results_tuple = (
-                L = L,
-                ΔT = ΔT,
-                Sₒ = Sₒ,
-                K = K,
-                IV = σ,
-                P = premium_value
+                L=L,
+                ΔT=ΔT,
+                Sₒ=Sₒ,
+                K=K,
+                IV=σ,
+                P=premium_value
             )
 
             # push -
@@ -142,7 +155,7 @@ function premium(contract::T, model::CRRLatticeModel)::Float64 where {T<:Abstrac
     end
 
     # Last: compute the option price -
-    reverse_node_index_array = range(number_of_nodes_to_evaluate, stop = 1, step = -1) |> collect
+    reverse_node_index_array = range(number_of_nodes_to_evaluate, stop=1, step=-1) |> collect
     for (_, parent_node_index) ∈ enumerate(reverse_node_index_array)
 
         # ok, get the connected node indexes -
