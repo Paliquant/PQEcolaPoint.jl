@@ -19,4 +19,7 @@ export price
 export premium
 export intrinsic
 
+# greeks -
+export θ
+
 end # module
