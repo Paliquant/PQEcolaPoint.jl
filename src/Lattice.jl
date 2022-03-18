@@ -30,7 +30,7 @@ function price(selector::Function, model::T, level::Int64)::Array{Float64,1} whe
 end
 
 
-function price(model::CRRLatticeModel, level::Int64)
+function price(model::CRRLatticeModel, level::Int64; weights::Bool=false)
 
     # grab the data -
     data_array = model.data
@@ -55,20 +55,27 @@ function price(model::CRRLatticeModel, level::Int64)
     idx = findall(x -> x == level, L)
     price_array = data_array[idx, 1]
 
-    # size -
-    ℛ = length(price_array)
+    # do we want to calculate the weights?
+    if (weights == true)
 
-    # compute the probabilty array -
-    tmp_range = range((level - 1), stop=0, step=-1) |> collect
-    for i ∈ tmp_range
-        j = (level - 1) - i
-        coeff = binomial((level - 1), j)
-        pvalue = coeff * ((p^i) * ((1 - p)^j))
-        push!(probabilities, pvalue)
+        # compute the probabilty array -
+        tmp_range = range((level - 1), stop=0, step=-1) |> collect
+        for i ∈ tmp_range
+            j = (level - 1) - i
+
+            n = big((level - 1))
+            k = big(j)
+
+            coeff = binomial(n, k)
+            pvalue = coeff * ((p^i) * ((1 - p)^j))
+            push!(probabilities, pvalue)
+        end
+
+        # return -
+        return hcat(price_array, probabilities)
+    else
+        return price_array
     end
-
-    # return -
-    return hcat(price_array, probabilities)
 end
 
 function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1})::DataFrame where {T<:AbstractDerivativeContractModel}
