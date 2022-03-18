@@ -1,3 +1,9 @@
+# === PRIVATE BELOW HERE ============================================================================================= #
+_rational(a, b) = max(a, b)
+# === PRIVATE ABOVE HERE ============================================================================================= #
+
+
+# === PUBLIC BELOW HERE ============================================================================================== #
 function price(selector::Function, model::T, level::Int64)::Array{Float64,1} where {T<:AbstractLatticeModel}
 
     # get network parameters -
@@ -28,7 +34,6 @@ function price(selector::Function, model::T, level::Int64)::Array{Float64,1} whe
 
     return price_array
 end
-
 
 function price(model::CRRLatticeModel, level::Int64; weights::Bool=false)
 
@@ -78,7 +83,7 @@ function price(model::CRRLatticeModel, level::Int64; weights::Bool=false)
     end
 end
 
-function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1})::DataFrame where {T<:AbstractDerivativeContractModel}
+function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1}; choice::Function=_rational)::DataFrame where {T<:AbstractDerivativeContractModel}
 
     # initialize -
     df = DataFrame()
@@ -88,7 +93,7 @@ function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1})::DataF
         for contract ∈ contracts
 
             # let's compute the premium -
-            premium_value = premium(contract, model)
+            premium_value = premium(contract, model; choice=choice)
 
             # get some value from the model, and contract -
             L = model.L
@@ -116,14 +121,14 @@ function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1})::DataF
     return df
 end
 
-function premium(contracts::Array{T,1}, model::CRRLatticeModel)::Array{Float64,1} where {T<:AbstractDerivativeContractModel}
+function premium(contracts::Array{T,1}, model::CRRLatticeModel; choice::Function=_rational)::Array{Float64,1} where {T<:AbstractDerivativeContractModel}
 
     # initialize -
     premimums = Array{Float64,1}()
     for contract ∈ contracts
 
         # compute the premium -
-        value = premium(contract, model)
+        value = premium(contract, model; choice=choice)
         push!(premimums, value)
     end
 
@@ -131,7 +136,7 @@ function premium(contracts::Array{T,1}, model::CRRLatticeModel)::Array{Float64,1
     return premimums
 end
 
-function premium(contract::T, model::CRRLatticeModel)::Float64 where {T<:AbstractDerivativeContractModel}
+function premium(contract::T, model::CRRLatticeModel; choice::Function=_rational)::Float64 where {T<:AbstractDerivativeContractModel}
 
     # initialize -
     tree_value_array = model.data
@@ -174,7 +179,7 @@ function premium(contract::T, model::CRRLatticeModel)::Float64 where {T<:Abstrac
         current_payback = tree_value_array[parent_node_index, 2]
 
         # use the decision logic to compute price -
-        node_price = max(current_payback, future_payback)
+        node_price = choice(current_payback, future_payback)
 
         # capture -
         tree_value_array[parent_node_index, 3] = node_price
@@ -183,3 +188,4 @@ function premium(contract::T, model::CRRLatticeModel)::Float64 where {T<:Abstrac
     # return -
     return tree_value_array[1, 3]
 end
+# === PUBLIC ABOVE HERE ============================================================================================= #
