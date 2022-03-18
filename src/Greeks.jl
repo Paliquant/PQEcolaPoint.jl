@@ -1,17 +1,9 @@
-function θ(contract::Y, model::T; choice::Function=_rational)::Float64 where {T<:AbstractLatticeModel,Y<:AbstractDerivativeContractModel}
+function θ(contract::Y, mₒ::CRRLatticeModel, m₁::CRRLatticeModel; 
+    choice::Function=_rational)::Float64 where {Y<:AbstractDerivativeContractModel}
 
-    # get stuff from model -
-    ΔTₒ = model.ΔT
-    N = model.number_of_levels
-
-    # compute the premium -
-    Pₒ = premium(contract, model; choice=choice)
-
-    # update the duraction, and recompute the premium -
-    new_model = deepcopy(model)
-    Δ = (1/N)*(1.0/365)
-    new_model.ΔT = (ΔTₒ - Δ)
-    P₁ = premium(contract, new_model; choice=choice)
+    # compute -
+    Pₒ = premium(contract, mₒ; choice=choice)
+    P₁ = premium(contract, m₁; choice=choice)
 
     # compute theta -
     θ_value = (P₁ - Pₒ)
