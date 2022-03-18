@@ -14,4 +14,4 @@ short_put_contract.number_of_contracts = 1
 short_put_contract.direction = 1
 
 # compute theta -
-val = θ(short_put_contract, model; ϵ=(27 / 28))
+val = θ(short_put_contract, model)

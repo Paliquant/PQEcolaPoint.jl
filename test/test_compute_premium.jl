@@ -2,7 +2,7 @@ using PQEcolaPoint
 using Dates
 
 # build a binary tree with three levels -
-model = build(CRRLatticeModel; Sₒ=111.69, number_of_levels=80, σ=0.5486, T=(28.0 / 365), μ=0.0045)
+model = build(CRRLatticeModel; Sₒ=111.69, number_of_levels=80, σ=0.5486, T=(27.0 / 365), μ=0.0045)
 
 # what is the contract?
 short_put_contract = PutContractModel()
