@@ -60,7 +60,7 @@ mutable struct CRRLatticeModel <: AbstractLatticeModel
     u::Float64
     d::Float64
     ΔT::Float64
-    L::Float64
+    T::Float64
     Sₒ::Float64
 
     data::Array{Float64,2}

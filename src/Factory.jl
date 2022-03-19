@@ -98,7 +98,7 @@ function build(CRRLatticeModel; number_of_levels::Int64 = 2, T::Float64 = (1 / 3
     lattice_model.d = d
     lattice_model.ΔT = ΔT
     lattice_model.σ = σ
-    lattice_model.L = T
+    lattice_model.T = T
     lattice_model.Sₒ = Sₒ
 
     # return the model -

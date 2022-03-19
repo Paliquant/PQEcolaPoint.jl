@@ -21,5 +21,6 @@ export intrinsic
 
 # greeks -
 export θ
+export δ
 
 end # module
