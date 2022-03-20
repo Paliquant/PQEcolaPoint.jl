@@ -7,6 +7,7 @@ using DataFrames
 using Dates
 using Distributions
 using Plots
+using LinearAlgebra
 
 # load my codes 
 include(joinpath(_PATH_TO_SRC, "Types.jl"))
