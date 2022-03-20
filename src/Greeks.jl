@@ -1,3 +1,4 @@
+# == THETA ========================================================================================================================================= #
 function θ(contracts::Array{Y,1}; number_of_levels::Int64=2, T::Float64=(1 / 365),
     σ::Float64=0.15, Sₒ::Float64=1.0, μ::Float64=0.0015, choice::Function=_rational)::Array{Float64,1} where {Y<:AbstractDerivativeContractModel}
 
@@ -35,7 +36,9 @@ function θ(contract::Y; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::Fl
     # return the value -
     return θ_value
 end
+# ================================================================================================================================================== #
 
+# == DELTA ========================================================================================================================================= #
 function δ(contracts::Array{Y,1}; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::Float64=0.15,
     Sₒ::Float64=1.0, μ::Float64=0.0015, choice::Function=_rational)::Array{Float64,1} where {Y<:AbstractDerivativeContractModel}
 
@@ -72,7 +75,9 @@ function δ(contract::Y; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::Fl
     # return the value -
     return δ_value
 end
+# ================================================================================================================================================== #
 
+# == GAMMA ========================================================================================================================================= #
 function γ(contract::Y; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::Float64=0.15,
     Sₒ::Float64=1.0, μ::Float64=0.0015, choice::Function=_rational) where {Y<:AbstractDerivativeContractModel}
 
@@ -105,7 +110,9 @@ function γ(contracts::Array{Y,1}; number_of_levels::Int64=2, T::Float64=(1 / 36
     # return -
     return value_array
 end
+# ================================================================================================================================================== #
 
+# == VEGA ========================================================================================================================================== #
 function vega(contracts::Array{Y,1}; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::Float64=0.15,
     Sₒ::Float64=1.0, μ::Float64=0.0015, choice::Function=_rational) where {Y<:AbstractDerivativeContractModel}
 
@@ -143,7 +150,9 @@ function vega(contract::Y; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::
     # return the value -
     return vega_value
 end
+# ================================================================================================================================================== #
 
+# == RHO =========================================================================================================================================== #
 function ρ(contract::Y; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::Float64=0.15,
     Sₒ::Float64=1.0, μ::Float64=0.0015, choice::Function=_rational) where {Y<:AbstractDerivativeContractModel}
 
@@ -181,3 +190,4 @@ function ρ(contracts::Array{Y,1}; number_of_levels::Int64=2, T::Float64=(1 / 36
     # return -
     return value_array
 end
+# ================================================================================================================================================== #
