@@ -22,5 +22,8 @@ export intrinsic
 # greeks -
 export θ
 export δ
+export γ
+export ρ
+export vega
 
 end # module
