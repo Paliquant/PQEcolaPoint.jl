@@ -83,7 +83,7 @@ function price(model::CRRLatticeModel, level::Int64; weights::Bool=false)
     end
 end
 
-function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1}; choice::Function=_rational)::DataFrame where {T<:AbstractDerivativeContractModel}
+function premium(contracts::Array{Y,1}, models::Array{CRRLatticeModel,1}; choice::Function=_rational)::DataFrame where {Y<:AbstractDerivativeContractModel}
 
     # initialize -
     df = DataFrame()
@@ -96,7 +96,7 @@ function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1}; choice
             premium_value = premium(contract, model; choice=choice)
 
             # get some value from the model, and contract -
-            L = model.L
+            T = model.T
             ΔT = model.ΔT
             σ = model.σ
             Sₒ = model.Sₒ
@@ -104,7 +104,7 @@ function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1}; choice
 
             # build tuple to add to the data frame -
             results_tuple = (
-                L=L,
+                T=T,
                 ΔT=ΔT,
                 Sₒ=Sₒ,
                 K=K,
