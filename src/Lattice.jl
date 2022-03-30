@@ -121,7 +121,8 @@ function premium(contracts::Array{T,1}, models::Array{CRRLatticeModel,1}; choice
     return df
 end
 
-function premium(contracts::Array{T,1}, model::CRRLatticeModel; choice::Function=_rational)::Array{Float64,1} where {T<:AbstractDerivativeContractModel}
+function premium(contracts::Array{T,1}, model::CRRLatticeModel; 
+    choice::Function=_rational)::Array{Float64,1} where {T<:AbstractDerivativeContractModel}
 
     # initialize -
     premimums = Array{Float64,1}()
@@ -136,7 +137,8 @@ function premium(contracts::Array{T,1}, model::CRRLatticeModel; choice::Function
     return premimums
 end
 
-function premium(contract::T, model::CRRLatticeModel; choice::Function=_rational)::Float64 where {T<:AbstractDerivativeContractModel}
+function premium(contract::T, model::CRRLatticeModel; 
+    choice::Function=_rational)::Float64 where {T<:AbstractDerivativeContractModel}
 
     # initialize -
     tree_value_array = model.data
