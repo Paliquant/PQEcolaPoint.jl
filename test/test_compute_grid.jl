@@ -32,8 +32,8 @@ for K ∈ strike_array
     push!(contracts, short_put_contract)
 end
 
-for underlying_price ∈ underlying_price_range
-    for dte_value ∈ dte_array
+for (i,underlying_price) ∈ enumerate(underlying_price_range)
+    for (j,dte_value) ∈ enumerate(dte_array)
         for IV ∈ IV_array
 
             # build a binary tree with these market conditions -
@@ -46,8 +46,8 @@ for underlying_price ∈ underlying_price_range
 
         # build the key -
         key_tuple = (
-            Sₒ = underlying_price,
-            DTE = dte_value
+            i = i,
+            j = j
         )
 
         # cache -
