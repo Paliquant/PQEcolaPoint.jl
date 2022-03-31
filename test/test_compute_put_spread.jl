@@ -25,5 +25,8 @@ push!(contracts, short_put_contract)
 push!(contracts, long_put_contract)
 
 # compute the theta array -
-θ_array = θ(contracts; Sₒ=113.46, number_of_levels=80, σ=0.5212, T=(27.0 / 365), μ=0.0047)
-δ_array = δ(contracts; Sₒ=113.46, number_of_levels=80, σ=0.5212, T=(27.0 / 365), μ=0.0047)
+Sₒ = 113.46
+model = build(CRRLatticeModel; Sₒ = Sₒ, number_of_levels=80, σ=0.5212, T=(37.0 / 365), μ=0.0045)
+C = premium(contracts, model)
+θ_array = θ(contracts; Sₒ = Sₒ, number_of_levels=80, σ=0.5212, T=(37.0 / 365), μ=0.0047)
+δ_array = δ(contracts; Sₒ = Sₒ, number_of_levels=80, σ=0.5212, T=(37.0 / 365), μ=0.0047)

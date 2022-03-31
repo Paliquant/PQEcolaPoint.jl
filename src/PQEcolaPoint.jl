@@ -18,6 +18,7 @@ export build
 export price
 export premium
 export intrinsic
+export projection
 
 # greeks -
 export θ

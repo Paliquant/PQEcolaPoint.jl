@@ -14,5 +14,7 @@ short_put_contract.premium = 0.0
 short_put_contract.number_of_contracts = 1
 short_put_contract.direction = 1
 
+
+
 # what is the premimum?
 parray = premium(short_put_contract, model)
