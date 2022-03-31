@@ -190,4 +190,18 @@ function premium(contract::T, model::CRRLatticeModel;
     # return -
     return tree_value_array[1, 3]
 end
+
+function premium(model::CRRContractPremiumLatticeModel; 
+    s::Int64 = 1, d::Int64 = 1, i::Int64 = 1, j::Int64 = 1)::Float64
+
+    # TODO: check for values outside the range?
+    key_tuple = (
+        s = s, 
+        d = d,
+        i = i,
+        j = j
+    );
+
+    return model.grid[key_tuple]
+end
 # === PUBLIC ABOVE HERE ============================================================================================= #

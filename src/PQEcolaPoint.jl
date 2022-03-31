@@ -11,6 +11,7 @@ export PutContractModel
 export CallContractModel
 export EquityModel
 export CRRLatticeModel
+export CRRContractPremiumLatticeModel
 
 # export methods -
 export expiration
@@ -19,6 +20,7 @@ export price
 export premium
 export intrinsic
 export projection
+export roll
 
 # greeks -
 export θ

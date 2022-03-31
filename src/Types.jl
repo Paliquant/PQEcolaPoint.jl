@@ -68,3 +68,19 @@ mutable struct CRRLatticeModel <: AbstractLatticeModel
     # constructor -
     CRRLatticeModel() = new()
 end
+
+mutable struct CRRContractPremiumLatticeModel
+
+    # data -
+    grid::Dict{NamedTuple,Union{Float64, Array{Float64,1}}}
+    underlying::Array{Float64,1}
+    strike::Union{Array{Float64,1}, Array{Float64,2}}
+    iv::Array{Float64,1}
+    dte::Array{Float64,1}
+    number_of_levels::Int64
+    μ::Float64
+    contract::T where {T <: AbstractDerivativeContractModel}
+
+    # constructor -
+    CRRContractPremiumLatticeModel() = new()
+end
