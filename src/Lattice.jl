@@ -191,15 +191,31 @@ function premium(contract::T, model::CRRLatticeModel;
     return tree_value_array[1, 3]
 end
 
-function premium(model::CRRContractPremiumLatticeModel; 
-    s::Int64 = 1, d::Int64 = 1, i::Int64 = 1, j::Int64 = 1)::Float64
+function premium(model::CRRContractPremiumLatticeModel, 
+    points::Array{CRRContractPremiumLatticePoint,1})::Array{Float64,1}
+
+    # initialize -
+    premium_array = Array{Float64,1}()
+
+    # compute a trajectory -
+    for point ∈ points
+        value = premium(model, point)
+        push!(premium_array, value)
+    end
+
+    # return -
+    return premium_array
+end
+
+function premium(model::CRRContractPremiumLatticeModel, 
+    point::CRRContractPremiumLatticePoint)::Float64
 
     # TODO: check for values outside the range?
     key_tuple = (
-        s = s, 
-        d = d,
-        i = i,
-        j = j
+        s = point.s, 
+        d = point.d,
+        i = point.i,
+        j = point.j
     );
 
     return model.grid[key_tuple]

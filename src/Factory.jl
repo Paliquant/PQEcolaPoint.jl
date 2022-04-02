@@ -62,7 +62,20 @@ function build(modelType::Type{CRRContractPremiumLatticeModel}, options::Dict{St
      return model
 end
 
-function build(CRRLatticeModel; number_of_levels::Int64 = 2, T::Float64 = (1 / 365), σ::Float64 = 0.15, 
+function build(type::Type{CRRContractPremiumLatticePoint}; 
+    i::Int64=1, j::Int64=1, s::Int64=1, d::Int64 = 1)::CRRContractPremiumLatticePoint
+
+    point_model = CRRContractPremiumLatticePoint()
+    point_model.i = i
+    point_model.j = j
+    point_model.s = s
+    point_model.d = d
+
+    # return -
+    return point_model
+end
+
+function build(type::Type{CRRLatticeModel}; number_of_levels::Int64 = 2, T::Float64 = (1 / 365), σ::Float64 = 0.15, 
     Sₒ::Float64 = 1.0, μ::Float64 = 0.0015)::Union{ArgumentError,CRRLatticeModel}
 
     # check: number_of_levels ≥ 2

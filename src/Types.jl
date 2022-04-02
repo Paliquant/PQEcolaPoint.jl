@@ -69,6 +69,18 @@ mutable struct CRRLatticeModel <: AbstractLatticeModel
     CRRLatticeModel() = new()
 end
 
+mutable struct CRRContractPremiumLatticePoint
+
+    # data -
+    s::Int64
+    d::Int64
+    i::Int64
+    j::Int64
+
+    # constructor -
+    CRRContractPremiumLatticePoint() = new()    
+end
+
 mutable struct CRRContractPremiumLatticeModel
 
     # data -

@@ -12,6 +12,7 @@ export CallContractModel
 export EquityModel
 export CRRLatticeModel
 export CRRContractPremiumLatticeModel
+export CRRContractPremiumLatticePoint
 
 # export methods -
 export expiration
