@@ -218,6 +218,59 @@ function premium(model::CRRContractPremiumLatticeModel,
         j = point.j
     );
 
-    return model.grid[key_tuple]
+    # get the premimum value -
+    premium_value = model.grid[key_tuple]
+
+    # return -
+    return premium_value
+end
+
+function decode(model::CRRContractPremiumLatticeModel, 
+    point::CRRContractPremiumLatticePoint)::NamedTuple
+
+    # get all the actual values associated with this point -
+    underlying_value = model.underlying[point.s]
+    iv_value = model.iv[point.j]
+    K_value = model.strike[point.i]
+    dte_value = model.dte[point.d]
+
+    # setup key tuple -
+    key_tuple = (
+        s = point.s, 
+        d = point.d,
+        i = point.i,
+        j = point.j
+    );
+
+    # get the premimum value -
+    premium_value = model.grid[key_tuple]
+
+    # build results tuple -
+    results_tuple = (
+        S = underlying_value,
+        IV = iv_value,
+        K = K_value,
+        DTE = dte_value,
+        P = premium_value
+    )
+
+    # return -
+    return results_tuple
+end
+
+function decode(model::CRRContractPremiumLatticeModel, 
+    points::Array{CRRContractPremiumLatticePoint,1})::Array{NamedTuple,1}
+
+    # initialize -
+    decoded_array = Array{NamedTuple,1}
+
+    # get data -
+    for point ∈ points
+        results_tuple = decode(model, point)
+        push!(decoded_array, results_tuple)
+    end
+
+    # return -
+    return decoded_array
 end
 # === PUBLIC ABOVE HERE ============================================================================================= #

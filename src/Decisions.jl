@@ -18,6 +18,8 @@ function projection(contractType::Type{Y}, underlying::Array{Float64,1},
 
                     # set the parameters on the contract / for this version of the method we have a single contract -
                     contract.strike_price = K
+                    contract.number_of_contracts = 1
+                    contract.direction = 1
                 
                     # compute the premimum -
                     p = premium(contract, model)

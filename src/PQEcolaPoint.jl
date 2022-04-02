@@ -21,6 +21,7 @@ export price
 export premium
 export intrinsic
 export projection
+export decode
 export save
 export load
 
