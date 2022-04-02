@@ -1,8 +1,11 @@
-function projection(contract::Y, underlying::Array{Float64,1}, strike::Array{Float64,1}, iv::Array{Float64,1}, dte::Array{Float64,1};
-    number_of_levels::Int64 = 100, μ::Float64 = 0.0045)::CRRContractPremiumLatticeModel  where {Y<:AbstractDerivativeContractModel}
+function projection(contractType::Type{Y}, underlying::Array{Float64,1}, 
+    strike::Array{Float64,1}, iv::Array{Float64,1}, dte::Array{Float64,1}; number_of_levels::Int64 = 100, μ::Float64 = 0.0045)::CRRContractPremiumLatticeModel  where {Y<:AbstractDerivativeContractModel}
 
     # initialize -
     simulation_archive = Dict{NamedTuple, Float64}()
+
+    # build an empty contract -
+    contract = build(contractType, Dict{String,Any}())
 
     # main loop to compute look ahead archive -
     for (d, T) ∈ enumerate(dte)
@@ -44,8 +47,8 @@ function projection(contract::Y, underlying::Array{Float64,1}, strike::Array{Flo
     lattice_model.iv = iv
     lattice_model.dte = dte
     lattice_model.number_of_levels = number_of_levels
-    lattice_model.μ = μ
-    lattice_model.contract = contract
+    lattice_model.risk_free_rate = μ
+    lattice_model.contractType = contractType
     
     # return -
     return lattice_model

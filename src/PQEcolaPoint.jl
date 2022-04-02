@@ -21,6 +21,7 @@ export premium
 export intrinsic
 export projection
 export save
+export load
 
 # greeks -
 export θ

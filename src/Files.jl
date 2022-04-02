@@ -1,8 +1,11 @@
-function load(path::String)::CRRContractPremiumLatticeModel
+function load(path::String, modelType::Type{CRRContractPremiumLatticeModel})
     
-    # dummy impl -
-    model = CRRContractPremiumLatticeModel()
-    return model
+
+    # load the BSON model -
+    tmp_data = BSON.load(path, @__MODULE__)[:model_dictionary]
+
+    # return -
+    return build(modelType, tmp_data)
 end
 
 function save(path::String, model::CRRContractPremiumLatticeModel)::Bool
@@ -16,8 +19,8 @@ function save(path::String, model::CRRContractPremiumLatticeModel)::Bool
     # iv::Array{Float64,1}
     # dte::Array{Float64,1}
     # number_of_levels::Int64
-    # μ::Float64
-    # contract::T where {T <: AbstractDerivativeContractModel}
+    # μ::Float64 -> risk_free_rate
+    # contractType::T where {T <: AbstractDerivativeContractModel}
 
     try
 
@@ -29,8 +32,8 @@ function save(path::String, model::CRRContractPremiumLatticeModel)::Bool
         model_dictionary["iv"] = model.iv
         model_dictionary["dte"] = model.dte
         model_dictionary["number_of_levels"] = model.number_of_levels
-        model_dictionary["risk_free_rate"] = model.μ
-        model_dictionary["contract"] = model.contract
+        model_dictionary["risk_free_rate"] = model.risk_free_rate
+        model_dictionary["contractType"] = model.contractType
         
         # dump -
         @save path model_dictionary

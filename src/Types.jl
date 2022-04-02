@@ -78,8 +78,8 @@ mutable struct CRRContractPremiumLatticeModel
     iv::Array{Float64,1}
     dte::Array{Float64,1}
     number_of_levels::Int64
-    μ::Float64
-    contract::T where {T <: AbstractDerivativeContractModel}
+    risk_free_rate::Float64
+    contractType::Type{T} where {T <: AbstractDerivativeContractModel}
 
     # constructor -
     CRRContractPremiumLatticeModel() = new()

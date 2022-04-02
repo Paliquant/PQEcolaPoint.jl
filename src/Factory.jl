@@ -3,27 +3,63 @@ function build(contractType::Type{T}, options::Dict{String,Any})::AbstractAssetM
     # initialize -
     model = eval(Meta.parse("$(contractType)()")) # empty contract model -
 
-    # for the result of the fields, let's lookup in the dictionary.
-    # error state: if the dictionary is missing a value -
-    for field_name_symbol ∈ fieldnames(contractType)
+    # if we have options, add them to the contract model -
+    if (isempty(options) == false)
+        
+        # for the result of the fields, let's lookup in the dictionary.
+        # error state: if the dictionary is missing a value -
+        for field_name_symbol ∈ fieldnames(contractType)
 
-        # convert the field_name_symbol to a string -
-        field_name_string = string(field_name_symbol)
+            # convert the field_name_symbol to a string -
+            field_name_string = string(field_name_symbol)
 
-        # check the for the key -
-        if (haskey(options, field_name_string) == false)
-            throw(ArgumentError("dictionary is missing: $(field_name_string)"))
+            # check the for the key -
+            if (haskey(options, field_name_string) == false)
+                throw(ArgumentError("dictionary is missing: $(field_name_string)"))
+            end
+
+            # get the value -
+            value = options[field_name_string]
+
+            # set -
+            setproperty!(model, field_name_symbol, value)
         end
-
-        # get the value -
-        value = options[field_name_string]
-
-        # set -
-        setproperty!(model, field_name_symbol, value)
     end
 
     # return -
     return model
+end
+
+function build(modelType::Type{CRRContractPremiumLatticeModel}, options::Dict{String,Any})::CRRContractPremiumLatticeModel
+
+     # initialize -
+     model = eval(Meta.parse("$(modelType)()")) # empty contract model -
+
+     # if we have options, add them to the contract model -
+     if (isempty(options) == false)
+         
+         # for the result of the fields, let's lookup in the dictionary.
+         # error state: if the dictionary is missing a value -
+         for field_name_symbol ∈ fieldnames(modelType)
+ 
+             # convert the field_name_symbol to a string -
+             field_name_string = string(field_name_symbol)
+ 
+             # check the for the key -
+             if (haskey(options, field_name_string) == false)
+                 throw(ArgumentError("dictionary is missing: $(field_name_string)"))
+             end
+ 
+             # get the value -
+             value = options[field_name_string]
+ 
+             # set -
+             setproperty!(model, field_name_symbol, value)
+         end
+     end
+ 
+     # return -
+     return model
 end
 
 function build(CRRLatticeModel; number_of_levels::Int64 = 2, T::Float64 = (1 / 365), σ::Float64 = 0.15, 

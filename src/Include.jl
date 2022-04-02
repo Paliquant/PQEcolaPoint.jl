@@ -8,7 +8,8 @@ using Dates
 using Distributions
 using Plots
 using LinearAlgebra
-using BSON: @save, @load
+using BSON
+using BSON: @save
 
 # load my codes 
 include(joinpath(_PATH_TO_SRC, "Types.jl"))
