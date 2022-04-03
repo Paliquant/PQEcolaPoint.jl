@@ -1,4 +1,4 @@
-function projection(contractType::Type{Y}, underlying::Array{Float64,1}, 
+function precompute(contractType::Type{Y}, underlying::Array{Float64,1}, 
     strike::Array{Float64,1}, iv::Array{Float64,1}, dte::Array{Float64,1}; number_of_levels::Int64 = 100, μ::Float64 = 0.0045)::CRRContractPremiumLatticeModel  where {Y<:AbstractDerivativeContractModel}
 
     # initialize -
@@ -6,6 +6,8 @@ function projection(contractType::Type{Y}, underlying::Array{Float64,1},
 
     # build an empty contract -
     contract = build(contractType, Dict{String,Any}())
+    contract.number_of_contracts = 1
+    contract.direction = 1
 
     # main loop to compute look ahead archive -
     for (d, T) ∈ enumerate(dte)
@@ -18,8 +20,7 @@ function projection(contractType::Type{Y}, underlying::Array{Float64,1},
 
                     # set the parameters on the contract / for this version of the method we have a single contract -
                     contract.strike_price = K
-                    contract.number_of_contracts = 1
-                    contract.direction = 1
+                    
                 
                     # compute the premimum -
                     p = premium(contract, model)

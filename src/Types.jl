@@ -69,7 +69,7 @@ mutable struct CRRLatticeModel <: AbstractLatticeModel
     CRRLatticeModel() = new()
 end
 
-mutable struct CRRContractPremiumLatticePoint
+mutable struct PQContractPremiumLatticePoint
 
     # data -
     s::Int64
@@ -78,8 +78,24 @@ mutable struct CRRContractPremiumLatticePoint
     j::Int64
 
     # constructor -
-    CRRContractPremiumLatticePoint() = new()    
+    PQContractPremiumLatticePoint() = new()    
 end
+
+mutable struct CRRJITContractPremiumLatticeModel
+
+    # data -
+    underlying::Array{Float64,1}
+    strike::Union{Array{Float64,1}, Array{Float64,2}}
+    iv::Array{Float64,1}
+    dte::Array{Float64,1}
+    number_of_levels::Int64
+    risk_free_rate::Float64
+    contractType::Type{T} where {T <: AbstractDerivativeContractModel}
+ 
+    # constructor -
+    CRRJITContractPremiumLatticeModel() = new()
+end
+
 
 mutable struct CRRContractPremiumLatticeModel
 

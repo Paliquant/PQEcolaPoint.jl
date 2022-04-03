@@ -20,7 +20,7 @@ IV_array = range(0.3, stop = 0.5, step = 0.1) |> collect
 K = range(80.0, stop = 125.0, step = 5.0) |> collect
 
 # compute the grid -
-lattice_model = projection(PutContractModel, S, K, IV_array, DTE; number_of_levels = 80)
+lattice_model = build(CRRContractPremiumLatticeModel, PutContractModel, S, K, IV_array, DTE; number_of_levels = 80)
 
 # # try to save -
 path_to_save = "./test/tmp/Test.bson"

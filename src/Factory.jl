@@ -62,10 +62,10 @@ function build(modelType::Type{CRRContractPremiumLatticeModel}, options::Dict{St
      return model
 end
 
-function build(type::Type{CRRContractPremiumLatticePoint}; 
-    i::Int64=1, j::Int64=1, s::Int64=1, d::Int64 = 1)::CRRContractPremiumLatticePoint
+function build(type::Type{PQContractPremiumLatticePoint}; 
+    i::Int64=1, j::Int64=1, s::Int64=1, d::Int64 = 1)::PQContractPremiumLatticePoint
 
-    point_model = CRRContractPremiumLatticePoint()
+    point_model = PQContractPremiumLatticePoint()
     point_model.i = i
     point_model.j = j
     point_model.s = s
@@ -152,5 +152,95 @@ function build(type::Type{CRRLatticeModel}; number_of_levels::Int64 = 2, T::Floa
     lattice_model.Sₒ = Sₒ
 
     # return the model -
+    return lattice_model
+end
+
+function build(latticeType::Type{CRRJITContractPremiumLatticeModel},contractType::Type{Y}, underlying::Array{Float64,1}, 
+    strike::Array{Float64,1}, iv::Array{Float64,1}, dte::Array{Float64,1}; number_of_levels::Int64 = 100, μ::Float64 = 0.0045)::CRRJITContractPremiumLatticeModel  where {Y<:AbstractDerivativeContractModel}
+
+    # show -
+    @info "Building a $(latticeType) lattice with a $(contractType) contract"
+
+    # data fields -
+    # underlying::Array{Float64,1}
+    # strike::Union{Array{Float64,1}, Array{Float64,2}}
+    # iv::Array{Float64,1}
+    # dte::Array{Float64,1}
+    # number_of_levels::Int64
+    # risk_free_rate::Float64
+    # contractType::Type{T} where {T <: AbstractDerivativeContractModel}
+
+    # build an empty CRRContractPremiumLatticeModel -
+    model = CRRJITContractPremiumLatticeModel()
+    model.underlying = underlying
+    model.strike = strike
+    model.iv = iv
+    model.dte = dte
+    model.number_of_levels = number_of_levels
+    model.risk_free_rate = μ
+    model.contractType = contractType
+
+    # return -
+    return model
+end
+
+function build(latticeType::Type{CRRContractPremiumLatticeModel},contractType::Type{Y}, underlying::Array{Float64,1}, 
+    strike::Array{Float64,1}, iv::Array{Float64,1}, dte::Array{Float64,1}; number_of_levels::Int64 = 100, μ::Float64 = 0.0045)::CRRContractPremiumLatticeModel  where {Y<:AbstractDerivativeContractModel}
+
+    # show -
+    @info "Building $(latticeType). This may take several minutes."
+
+    # initialize -
+    simulation_archive = Dict{NamedTuple, Float64}()
+
+    # build an empty contract -
+    contract = build(contractType, Dict{String,Any}())
+    contract.number_of_contracts = 1
+    contract.direction = 1
+
+    # main loop to compute look ahead archive -
+    for (d, T) ∈ enumerate(dte)
+        for (s, Sₒ) ∈ enumerate(underlying)
+            for (i, K) ∈ enumerate(strike)
+                for (j, σ) ∈ enumerate(iv)
+
+                    # build a binary tree with these market conditions -
+                    model = build(CRRLatticeModel; Sₒ = Sₒ, number_of_levels = number_of_levels, σ = σ, T = (T / 365), μ = μ)
+
+                    # set the parameters on the contract / for this version of the method we have a single contract -
+                    contract.strike_price = K
+                    
+                    # compute the premimum -
+                    p = premium(contract, model)
+
+                    # build the key -
+                    key_tuple = (
+                        s = s,
+                        d = d,
+                        i = i,
+                        j = j
+                    );   
+    
+                    # cache -
+                    simulation_archive[key_tuple] = p
+
+                    @info (s,d,i,j)
+                end
+            end
+        end
+    end
+
+    # build model -
+    lattice_model = CRRContractPremiumLatticeModel()
+    lattice_model.grid = simulation_archive
+    lattice_model.underlying = underlying
+    lattice_model.strike = strike
+    lattice_model.iv = iv
+    lattice_model.dte = dte
+    lattice_model.number_of_levels = number_of_levels
+    lattice_model.risk_free_rate = μ
+    lattice_model.contractType = contractType
+    
+    # return -
     return lattice_model
 end

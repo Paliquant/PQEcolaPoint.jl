@@ -1,5 +1,6 @@
 # === PRIVATE BELOW HERE ============================================================================================= #
 _rational(a, b) = max(a, b)
+_encode(array,value) = findfirst(x->x>=value, array)
 # === PRIVATE ABOVE HERE ============================================================================================= #
 
 
@@ -192,7 +193,7 @@ function premium(contract::T, model::CRRLatticeModel;
 end
 
 function premium(model::CRRContractPremiumLatticeModel, 
-    points::Array{CRRContractPremiumLatticePoint,1})::Array{Float64,1}
+    points::Array{PQContractPremiumLatticePoint,1})::Array{Float64,1}
 
     # initialize -
     premium_array = Array{Float64,1}()
@@ -207,8 +208,39 @@ function premium(model::CRRContractPremiumLatticeModel,
     return premium_array
 end
 
+function premium(model::CRRJITContractPremiumLatticeModel, point::PQContractPremiumLatticePoint)::Float64
+
+    # get the contract type from the model -
+    contractType = model.contractType
+
+    # build an empty contract -
+    contract = build(contractType, Dict{String,Any}())
+    contract.number_of_contracts = 1
+    contract.direction = 1
+
+    # get our operating point from the point model -
+    underlying_value = model.underlying[point.s]
+    iv_value = model.iv[point.j]
+    K_value = model.strike[point.i]
+    dte_value = model.dte[point.d]
+    number_of_levels = model.number_of_levels
+    risk_free_rate = model.risk_free_rate
+
+    # build a binary tree with these market conditions -
+    world_model = build(CRRLatticeModel; Sₒ = underlying_value, number_of_levels = number_of_levels, σ = iv_value, T = (dte_value / 365), μ = risk_free_rate)
+
+    # set the parameters on the contract / for this version of the method we have a single contract -
+    contract.strike_price = K_value
+    
+    # compute the premimum -
+    p = premium(contract, world_model)
+
+    # return -
+    return p
+end
+
 function premium(model::CRRContractPremiumLatticeModel, 
-    point::CRRContractPremiumLatticePoint)::Float64
+    point::PQContractPremiumLatticePoint)::Float64
 
     # TODO: check for values outside the range?
     key_tuple = (
@@ -225,8 +257,49 @@ function premium(model::CRRContractPremiumLatticeModel,
     return premium_value
 end
 
+function decode(model::CRRJITContractPremiumLatticeModel, 
+    points::Array{PQContractPremiumLatticePoint,1})::Array{NamedTuple, 1}
+
+    # initialize -
+    decoded_array = Array{NamedTuple,1}
+
+    # get data -
+    for point ∈ points
+        results_tuple = decode(model, point)
+        push!(decoded_array, results_tuple)
+    end
+
+    # return -
+    return decoded_array
+end
+
+function decode(model::CRRJITContractPremiumLatticeModel, 
+    point::PQContractPremiumLatticePoint)::NamedTuple
+
+    # get all the actual values associated with this point -
+    underlying_value = model.underlying[point.s]
+    iv_value = model.iv[point.j]
+    K_value = model.strike[point.i]
+    dte_value = model.dte[point.d]
+
+    # compute the premium -
+    p = premium(model, point)
+
+    # build results tuple -
+    results_tuple = (
+        S = underlying_value,
+        IV = iv_value,
+        K = K_value,
+        DTE = dte_value,
+        P = p
+    )
+
+    # return -
+    return results_tuple
+end
+
 function decode(model::CRRContractPremiumLatticeModel, 
-    point::CRRContractPremiumLatticePoint)::NamedTuple
+    point::PQContractPremiumLatticePoint)::NamedTuple
 
     # get all the actual values associated with this point -
     underlying_value = model.underlying[point.s]
@@ -259,7 +332,7 @@ function decode(model::CRRContractPremiumLatticeModel,
 end
 
 function decode(model::CRRContractPremiumLatticeModel, 
-    points::Array{CRRContractPremiumLatticePoint,1})::Array{NamedTuple,1}
+    points::Array{PQContractPremiumLatticePoint,1})::Array{NamedTuple,1}
 
     # initialize -
     decoded_array = Array{NamedTuple,1}
@@ -272,5 +345,27 @@ function decode(model::CRRContractPremiumLatticeModel,
 
     # return -
     return decoded_array
+end
+
+function encode(model::Union{CRRJITContractPremiumLatticeModel,CRRContractPremiumLatticeModel};
+    S::Float64, IV::Float64, DTE::Float64, K::Float64)::PQContractPremiumLatticePoint
+
+    # initialize -
+    point = PQContractPremiumLatticePoint()
+
+    # get data from model -
+    underlying = model.underlying
+    strike = model.strike
+    iv = model.iv
+    dte = model.dte
+
+    # find nearest index -
+    point.s = _encode(underlying, S)
+    point.i = _encode(strike, K)
+    point.j = _encode(iv, IV)
+    point.d = _encode(-1*dte, -1*DTE)
+
+    # return -
+    return point
 end
 # === PUBLIC ABOVE HERE ============================================================================================= #

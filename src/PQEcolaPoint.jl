@@ -12,7 +12,8 @@ export CallContractModel
 export EquityModel
 export CRRLatticeModel
 export CRRContractPremiumLatticeModel
-export CRRContractPremiumLatticePoint
+export CRRJITContractPremiumLatticeModel
+export PQContractPremiumLatticePoint
 
 # export methods -
 export expiration
@@ -20,8 +21,8 @@ export build
 export price
 export premium
 export intrinsic
-export projection
 export decode
+export encode
 export save
 export load
 
