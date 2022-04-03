@@ -25,6 +25,7 @@ export decode
 export encode
 export save
 export load
+export move
 
 # greeks -
 export θ
