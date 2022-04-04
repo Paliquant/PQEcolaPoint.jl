@@ -1,16 +1,16 @@
 using PQEcolaPoint
 
 # setup DTE -
-T = 72.0
+T = 300.0
 DTE = range(T, stop=0.0,step=-1.0) |> collect
 
 # setup underlying range -
 Sₒ = 76.04
 IV = 0.4456
 σ = Sₒ*(IV)*(√(T/365))
-L = round(Sₒ - 2.96*σ)
-U = round(Sₒ + 2.96*σ)
-S = range(L,stop=U, step=0.5) |> collect
+L = round(Sₒ - 1.96*σ)  # 95%
+U = round(Sₒ + 1.96*σ)  # 95%
+S = range(max.(L, 0.0),stop=U, step=0.5) |> collect
 
 # setup IV array -
 IV_array = range(0.1, stop = 1.2, step = 0.05) |> collect
@@ -22,6 +22,6 @@ K = range(50.0, stop = 125.0, step = 5.0) |> collect
 JIT_lattice = build(CRRJITContractPremiumLatticeModel, PutContractModel, S, K, IV_array, DTE; number_of_levels = 80)
 
 # encode the to and from points -
-from_point = encode(JIT_lattice; S = Sₒ, DTE = 35.0, IV = 0.4498, K = 75.0)
+from_point = encode(JIT_lattice; S = 78.0, DTE = 35.0, IV = 0.4498, K = 75.0)
 to_point = encode(JIT_lattice; S = Sₒ, DTE = 49.0, IV = 0.4681, K = 70.0)
 p_array = move(JIT_lattice; from = from_point, to = to_point)

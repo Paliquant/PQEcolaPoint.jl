@@ -12,3 +12,4 @@ function move(model::CRRJITContractPremiumLatticeModel;
     # return -
     return premium_array
 end
+
