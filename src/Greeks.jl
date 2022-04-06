@@ -56,7 +56,7 @@ function δ(contracts::Array{Y,1}; number_of_levels::Int64=2, T::Float64=(1 / 36
 end
 
 function δ(contract::Y; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::Float64=0.15,
-    Sₒ::Float64=1.0, μ::Float64=0.0015, choice::Function=_rational) where {Y<:AbstractDerivativeContractModel}
+    Sₒ::Float64=1.0, μ::Float64=0.0015, choice::Function=_rational)::Float64 where {Y<:AbstractDerivativeContractModel}
 
     # advance base price by 1 -
     S₁ = Sₒ + 1
@@ -74,6 +74,45 @@ function δ(contract::Y; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::Fl
 
     # return the value -
     return δ_value
+end
+
+function δ(model::CRRJITContractPremiumLatticeModel, point::PQContractPremiumLatticePoint)::Float64
+
+    # get stuff from the lattice model -
+    contractType = model.contractType
+ 
+    # get our operating point from the point model -
+    underlying_value = model.underlying[point.s]
+    iv_value = model.iv[point.j]
+    K_value = model.strike[point.i]
+    dte_value = model.dte[point.d]
+    number_of_levels = model.number_of_levels
+    risk_free_rate = model.risk_free_rate
+
+    # build an empty contract -
+    contract = build(contractType, Dict{String,Any}())
+    contract.number_of_contracts = 1
+    contract.direction = 1
+    contract.strike_price = K_value
+
+    # call the original δ function -
+    return δ(contract; number_of_levels = number_of_levels, T = (dte_value/365.0), σ = iv_value, 
+        Sₒ = underlying_value, μ = risk_free_rate)
+end
+
+function δ(model::CRRJITContractPremiumLatticeModel, points::Array{PQContractPremiumLatticePoint,1})::Array{Float64,1}
+
+    # initialize -
+    delta_array = Array{Float64,1}()
+
+    # process the points -
+    for point ∈ points
+        value = δ(model, point)
+        push!(delta_array, value)
+    end
+
+    # return -
+    return delta_array
 end
 # ================================================================================================================================================== #
 

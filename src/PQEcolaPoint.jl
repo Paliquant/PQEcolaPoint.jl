@@ -26,6 +26,7 @@ export encode
 export save
 export load
 export move
+export tabu
 
 # greeks -
 export θ
