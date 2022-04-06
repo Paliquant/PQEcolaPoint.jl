@@ -29,9 +29,12 @@ function _neighborhood(point::PQContractPremiumLatticePoint)::Array{PQContractPr
         push!(N_array, build(PQContractPremiumLatticePoint; i = (point.i + 1), j = point.j, s = point.s, d = (point.d - 1)))
         push!(N_array, build(PQContractPremiumLatticePoint; i = (point.i - 1), j = point.j, s = point.s, d = (point.d + 1)))
         push!(N_array, build(PQContractPremiumLatticePoint; i = (point.i - 1), j = point.j, s = point.s, d = (point.d - 1)))
+    else
+        push!(N_array, build(PQContractPremiumLatticePoint; i = I_min, j = point.j, s = point.s, d = D_min))
     end
 
     @show N_array
+    
 
     # return -
     return N_array
