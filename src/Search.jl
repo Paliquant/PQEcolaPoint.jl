@@ -1,9 +1,31 @@
+import Base.isequal;
+import Base.==;
+
+function PQEcolaPoint.isequal(p1::PQContractPremiumLatticePoint, p2::PQContractPremiumLatticePoint)::Bool
+
+    if ((p1.i == p2.i) && (p1.j == p2.j) && (p1.s == p2.s) && (p1.d == p2.d))
+        return true
+    end
+
+    return false
+end
+
+function ==(p1::PQContractPremiumLatticePoint, p2::PQContractPremiumLatticePoint)::Bool
+
+    if ((p1.i == p2.i) && (p1.j == p2.j) && (p1.s == p2.s) && (p1.d == p2.d))
+        return true
+    end
+
+    return false
+end
+
+
 # == PUBLIC BELOW HERE ================================================================================================ #
 function tabu(world::CRRJITContractPremiumLatticeModel, base::PQContractPremiumLatticePoint; 
     fitness::Function, neighborhood::Function)::Tuple{Float64,PQContractPremiumLatticePoint}
 
     # initialize -
-    max_number_of_iterations = 400
+    max_number_of_iterations = 1000
     iteration_counter = 0
     length_of_simple_memory = 80
     should_stop_search = false
@@ -12,8 +34,8 @@ function tabu(world::CRRJITContractPremiumLatticeModel, base::PQContractPremiumL
     best_fitness = fitness(world, best_point)
 
     # tabu list -
-    tabu_set = Set{PQContractPremiumLatticePoint}()
-    push!(tabu_set, best_point)
+    tabu_list = Array{PQContractPremiumLatticePoint,1}()
+    push!(tabu_list, best_point)
 
     # main loop -
     while (should_stop_search == false)
@@ -26,7 +48,7 @@ function tabu(world::CRRJITContractPremiumLatticeModel, base::PQContractPremiumL
         for candidate_point ∈ list_of_candidate_points
             
             # is this candidate_point in the tabu_list?
-            if (in(candidate_point, tabu_set) == false && fitness(world, candidate_point) > current_fitness)
+            if (in(candidate_point, tabu_list) == false && fitness(world, candidate_point) > current_fitness)
                 current_point = candidate_point
             end
         end
@@ -46,8 +68,8 @@ function tabu(world::CRRJITContractPremiumLatticeModel, base::PQContractPremiumL
         end
 
         # prune the tabu set - remove a random element -
-        if (length(tabu_set) >= length_of_simple_memory)
-            pop!(tabu_set) # remove a random element -
+        if (length(tabu_list) >= length_of_simple_memory)
+            deleteat!(tabu_list,1) # remove a random element -
         end
 
         # update the iteration_counter -

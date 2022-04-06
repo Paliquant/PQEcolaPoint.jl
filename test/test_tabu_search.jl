@@ -4,22 +4,22 @@ using PQEcolaPoint
 function _fitness(world::CRRJITContractPremiumLatticeModel, test_point::PQContractPremiumLatticePoint)::Float64
 
     # how would we impl constraints?
-    # ...
+    p_value = premium(world, test_point)
 
     # fitness is premium -
-    return premium(world, test_point)
+    return p_value
 end
 
 function _neighborhood(point::PQContractPremiumLatticePoint)::Array{PQContractPremiumLatticePoint,1}
 
     # initialize -
     N_array = Array{PQContractPremiumLatticePoint,1}()
-    D_max = 65
+    D_max = 301
     D_min = 2
-    I_max = 23
+    I_max = 16
     I_min = 2
 
-    if (point.d<(D_max - 1) && point.d >= D_min && point.i < (I_max - 1) && point.i >= I_min)
+    if (point.d < (D_max - 1) && point.d >= D_min && point.i < (I_max - 1) && point.i >= I_min)
 
         push!(N_array, build(PQContractPremiumLatticePoint; i = (point.i + 1), j = point.j, s = point.s, d = point.d))
         push!(N_array, build(PQContractPremiumLatticePoint; i = (point.i - 1), j = point.j, s = point.s, d = point.d))
@@ -30,6 +30,8 @@ function _neighborhood(point::PQContractPremiumLatticePoint)::Array{PQContractPr
         push!(N_array, build(PQContractPremiumLatticePoint; i = (point.i - 1), j = point.j, s = point.s, d = (point.d + 1)))
         push!(N_array, build(PQContractPremiumLatticePoint; i = (point.i - 1), j = point.j, s = point.s, d = (point.d - 1)))
     end
+
+    @show N_array
 
     # return -
     return N_array
