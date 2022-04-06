@@ -58,6 +58,6 @@ function tabu(world::CRRJITContractPremiumLatticeModel, base::PQContractPremiumL
     end
 
     # return -
-    return best_point
+    return (best_fitness, best_point)
 end
 # == PUBLIC ABOVE HERE ================================================================================================ #
