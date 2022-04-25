@@ -36,6 +36,30 @@ function θ(contract::Y; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::Fl
     # return the value -
     return θ_value
 end
+
+function θ(model::CRRJITContractPremiumLatticeModel, point::PQContractPremiumLatticePoint)::Float64
+
+    # get stuff from the lattice model -
+    contractType = model.contractType
+ 
+    # get our operating point from the point model -
+    underlying_value = model.underlying[point.s]
+    iv_value = model.iv[point.j]
+    K_value = model.strike[point.i]
+    dte_value = model.dte[point.d]
+    number_of_levels = model.number_of_levels
+    risk_free_rate = model.risk_free_rate
+
+    # build an empty contract -
+    contract = build(contractType, Dict{String,Any}())
+    contract.number_of_contracts = 1
+    contract.direction = 1
+    contract.strike_price = K_value
+
+    # compute -
+    return θ(contract; number_of_levels = number_of_levels, T = (dte_value/365.0), σ = iv_value, 
+        Sₒ = underlying_value, μ = risk_free_rate);
+end
 # ================================================================================================================================================== #
 
 # == DELTA ========================================================================================================================================= #
@@ -149,6 +173,30 @@ function γ(contracts::Array{Y,1}; number_of_levels::Int64=2, T::Float64=(1 / 36
     # return -
     return value_array
 end
+
+function γ(model::CRRJITContractPremiumLatticeModel, point::PQContractPremiumLatticePoint)::Float64
+
+    # get stuff from the lattice model -
+    contractType = model.contractType
+ 
+    # get our operating point from the point model -
+    underlying_value = model.underlying[point.s]
+    iv_value = model.iv[point.j]
+    K_value = model.strike[point.i]
+    dte_value = model.dte[point.d]
+    number_of_levels = model.number_of_levels
+    risk_free_rate = model.risk_free_rate
+
+    # build an empty contract -
+    contract = build(contractType, Dict{String,Any}())
+    contract.number_of_contracts = 1
+    contract.direction = 1
+    contract.strike_price = K_value
+
+    # compute -
+    return γ(contract; number_of_levels = number_of_levels, T = (dte_value/365.0), σ = iv_value, 
+        Sₒ = underlying_value, μ = risk_free_rate);
+end
 # ================================================================================================================================================== #
 
 # == VEGA ========================================================================================================================================== #
@@ -188,6 +236,30 @@ function vega(contract::Y; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::
 
     # return the value -
     return vega_value
+end
+
+function vega(model::CRRJITContractPremiumLatticeModel, point::PQContractPremiumLatticePoint)::Float64
+
+    # get stuff from the lattice model -
+    contractType = model.contractType
+ 
+    # get our operating point from the point model -
+    underlying_value = model.underlying[point.s]
+    iv_value = model.iv[point.j]
+    K_value = model.strike[point.i]
+    dte_value = model.dte[point.d]
+    number_of_levels = model.number_of_levels
+    risk_free_rate = model.risk_free_rate
+
+    # build an empty contract -
+    contract = build(contractType, Dict{String,Any}())
+    contract.number_of_contracts = 1
+    contract.direction = 1
+    contract.strike_price = K_value
+
+    # compute -
+    return vega(contract; number_of_levels = number_of_levels, T = (dte_value/365.0), σ = iv_value, 
+        Sₒ = underlying_value, μ = risk_free_rate);
 end
 # ================================================================================================================================================== #
 
