@@ -27,6 +27,8 @@ export save
 export load
 export move
 export tabu
+export roll
+
 
 # greeks -
 export θ
