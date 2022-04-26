@@ -151,6 +151,8 @@ function γ(contract::Y; number_of_levels::Int64=2, T::Float64=(1 / 365), σ::Fl
     δₒ = δ(contract; number_of_levels=number_of_levels, T=T, σ=σ, Sₒ=Sₒ, μ=μ, choice=choice)
     δ₁ = δ(contract; number_of_levels=number_of_levels, T=T, σ=σ, Sₒ=S₁, μ=μ, choice=choice)
 
+    @show (δₒ,δ₁, T)
+
     # compute γ -
     γ_value = (δ₁ - δₒ)
 
@@ -174,7 +176,8 @@ function γ(contracts::Array{Y,1}; number_of_levels::Int64=2, T::Float64=(1 / 36
     return value_array
 end
 
-function γ(model::CRRJITContractPremiumLatticeModel, point::PQContractPremiumLatticePoint)::Float64
+function γ(model::CRRJITContractPremiumLatticeModel, point::PQContractPremiumLatticePoint; 
+    choice::Function=_rational)::Float64
 
     # get stuff from the lattice model -
     contractType = model.contractType
@@ -195,7 +198,7 @@ function γ(model::CRRJITContractPremiumLatticeModel, point::PQContractPremiumLa
 
     # compute -
     return γ(contract; number_of_levels = number_of_levels, T = (dte_value/365.0), σ = iv_value, 
-        Sₒ = underlying_value, μ = risk_free_rate);
+        Sₒ = underlying_value, μ = risk_free_rate, choice=choice);
 end
 # ================================================================================================================================================== #
 
