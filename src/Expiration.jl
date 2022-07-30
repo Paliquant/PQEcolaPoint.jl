@@ -109,8 +109,8 @@ function expiration(models::Array{T,1}, underlying::Array{Float64,1})::DataFrame
         end
 
         # build key names -
-        payoff_key_name = "PAYOUT_L$(i)"
-        profit_key_name = "PROFIT_L$(i)"
+        payoff_key_name = "payout_$(model.ticker)"
+        profit_key_name = "profit_$(model.ticker)"
 
         # capture -
         expiration_data_dictionary[payoff_key_name] = tmp_leg_payoff_array
@@ -139,8 +139,8 @@ function expiration(models::Array{T,1}, underlying::Array{Float64,1})::DataFrame
     end
 
     # add -
-    expiration_data_dictionary["TOTAL_PAYOUT"] = tmp_payoff_array
-    expiration_data_dictionary["TOTAL_PROFIT"] = tmp_profit_array
+    expiration_data_dictionary["payout"] = tmp_payoff_array
+    expiration_data_dictionary["profit"] = tmp_profit_array
 
     # return -
     return DataFrame(expiration_data_dictionary)
