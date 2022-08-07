@@ -38,7 +38,7 @@ function build(contractType::Type{T}, options::NamedTuple)::AbstractAssetModel w
     # if we have options, add them to the contract model -
     if (isempty(options) == false)
     
-        for key ∈ keys(options)
+        for key ∈ fieldnames(contractType)
             
             # convert the field_name_symbol to a string -
             field_name_string = string(key)
