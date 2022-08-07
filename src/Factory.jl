@@ -30,6 +30,36 @@ function build(contractType::Type{T}, options::Dict{String,Any})::AbstractAssetM
     return model
 end
 
+function build(contractType::Type{T}, options::NamedTuple)::AbstractAssetModel where {T<:AbstractAssetModel}
+
+    # initialize -
+    model = eval(Meta.parse("$(contractType)()")) # empty contract model -
+
+    # if we have options, add them to the contract model -
+    if (isempty(options) == false)
+    
+        for key ∈ keys(options)
+            
+            # convert the field_name_symbol to a string -
+            field_name_string = string(key)
+
+            # check the for the key -
+            if (haskey(options, key) == false)
+                throw(ArgumentError("NamedTuple is missing: $(field_name_string)"))
+            end
+
+            # get the value -
+            value = options[key]
+
+            # set -
+            setproperty!(model, key, value)
+        end
+    end
+
+    # return -
+    return model
+end
+
 function build(modelType::Type{CRRContractPremiumLatticeModel}, options::Dict{String,Any})::CRRContractPremiumLatticeModel
 
      # initialize -
